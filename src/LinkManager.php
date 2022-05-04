@@ -17,13 +17,27 @@ namespace ComposerLink;
 
 use Composer\Composer;
 use Composer\DependencyResolver\DefaultPolicy;
+use Composer\DependencyResolver\LocalRepoTransaction;
 use Composer\DependencyResolver\Pool;
 use Composer\DependencyResolver\Request;
 use Composer\DependencyResolver\Solver;
+use Composer\DependencyResolver\SolverProblemsException;
+use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Installer\InstallationManager;
 use Composer\IO\IOInterface;
+use Composer\Package\BasePackage;
+use Composer\Package\Locker;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootPackage;
+use Composer\Package\Version\VersionParser;
+use Composer\Repository\InstalledRepository;
 use Composer\Repository\InstalledRepositoryInterface;
+use Composer\Repository\PathRepository;
+use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositoryInterface;
+use Composer\Repository\RepositorySet;
+use Composer\Repository\RootPackageRepository;
+use Composer\Semver\Constraint\Constraint;
 use Composer\Util\Filesystem;
 use Composer\Util\Loop;
 use Exception;
@@ -71,6 +85,7 @@ class LinkManager
      */
     public function linkPackage(LinkedPackage $linkedPackage): void
     {
+        /*
         var_dump(count($this->installedRepository->getPackages()));
         if (!is_null($linkedPackage->getOriginalPackage())) {
             $this->uninstall($linkedPackage->getOriginalPackage());
@@ -81,26 +96,158 @@ class LinkManager
         }
 
         $this->install($linkedPackage->getPackage());
+        */
+
+        /*
+        $localRepo = $this->composer->getRepositoryManager()->getLocalRepository();
+        $lockedRepo = $this->composer->getLocker()->getLockedRepository();
+        $lockedRepo->addPackage($linkedPackage->getPackage());
 
         $this->io->warning('----------------------');
-        var_dump(count($this->installedRepository->getPackages()));
+        $localRepoTransaction = new LocalRepoTransaction(
+            $lockedRepo,
+            $localRepo
+        );
+
+        $this->composer->getInstallationManager()->execute($localRepo, $localRepoTransaction->getOperations());
+        */
+
+        $root = $this->composer->getPackage();
+        $requires = $root->getRequires();
+        $devRequires = $root->getDevRequires();
+        // Loop through both, replace with new package.
+        // If not exists add package to requires
+        $root->setRequires($requires);
+        $root->setDevRequires($devRequires);
+
+        // Build list witch  packages that are required from the locked repository
+        $lockedRepository = $this->composer->getLocker()->getLockedRepository();
+        $requires = [];
+        foreach ($lockedRepository->getPackages() as $package) {
+            $constraint = new Constraint('=', $package->getVersion());
+            $constraint->setPrettyString($package->getPrettyVersion());
+            if ($package->getName() === $linkedPackage->getName()) {
+                continue;
+            }
+
+            $requires[$package->getName()] = $constraint;
+        }
+
+        $repositorySet = new RepositorySet(
+            'dev',
+            [],
+            [],
+            $this->composer->getPackage()->getReferences(),
+            $requires
+        );
+        $request = new Request();
+        $request->requireName($linkedPackage->getName(), new Constraint('=', 'dev-master'));
         $policy = new DefaultPolicy();
-        $pool = new Pool($this->installedRepository->getPackages());
-        $request = new Request($this->composer->getLocker()->getLockedRepository());
-        foreach ($pool->getPackages() as $package) {
+        $repositorySet->addRepository(new RootPackageRepository($this->composer->getPackage()));
+        $repo = new PathRepository(['url' => $linkedPackage->getPath()], $this->io, $this->composer->getConfig());
+        $repositorySet->addRepository($repo);
+        $pool = $repositorySet->createPool($request, $this->io);
+        $solver = new Solver($policy, $pool, $this->io);
+
+        $this->io->warning('----------------------');
+
+        try {
+            $transaction = $solver->solve($request, PlatformRequirementFilterFactory::ignoreAll());
+            $operations = $transaction->getOperations();
+            foreach ($operations as $operation) {
+                $this->io->write($operation->show(false));
+            }
+        } catch (SolverProblemsException $exception) {
+            $this->io->write($exception->getPrettyString($repositorySet, $request, $pool, true));
+        }
+
+        /*
+        $repositorySet = new RepositorySet('stable', [], []);
+        $locked = $this->composer->getLocker()->getLockedRepository();
+        $repo = new PathRepository(['url' => $linkedPackage->getPath()], $this->io, $this->composer->getConfig());
+        $repo->addPackage($linkedPackage->getPackage());
+        $repositorySet->addRepository($repo);
+        $request = new Request();
+        // $request->fixLockedPackage($linkedPackage->getPackage());
+        foreach ($locked->getPackages() as $package) {
             $request->lockPackage($package);
         }
+
+        $policy = new DefaultPolicy();
+        $pool = $repositorySet->createPool($request, $this->io);
+        $solver = new Solver($policy, $pool, $this->io);
+
+        $this->io->warning('----------------------');
+
+        try {
+            $transaction = $solver->solve($request);
+            $operations = $transaction->getOperations();
+            var_dump(count($operations));
+            foreach ($operations as $operation) {
+                $this->io->write($operation->show(false));
+            }
+        } catch (SolverProblemsException $exception) {
+            $this->io->write($exception->getPrettyString($repositorySet, $request, $pool, true));
+        }
+        */
+        /*
+        var_dump(count($this->installedRepository->getPackages()));
+        //$this->installedRepository->addPackage($linkedPackage->getPackage());
+        $pool = new Pool($this->installedRepository->getPackages());
+        $lockedRepository = $this->composer->getLocker()->getLockedRepository();
+        $lockedRepository->addPackage($linkedPackage->getPackage());
+        $request = new Request();
+        foreach ($pool->getPackages() as $package) {
+            //$request->lockPackage($package);
+        }
+        $request->requireName($linkedPackage->getPackage()->getPrettyName(), new Constraint('==', 'dev-master'));
+
         // $request->fixLockedPackage($linkedPackage->getPackage());
         $this->io->write($pool->__toString());
         $solver = new Solver($policy, $pool, $this->io);
-        $transaction = $solver->solve($request);
+        try {
+            $transaction = $solver->solve($request);
+        }
+        catch (SolverProblemsException $exception) {
+            $this->io->write($exception->getPrettyString($lockedRepository, $request, $pool));
+        }
         $operations = $transaction->getOperations();
         foreach ($operations as $operation) {
             $this->io->write($operation->show(false));
         }
+        */
         $this->io->warning('----------------------');
 
         $this->install($linkedPackage->getPackage());
+    }
+
+    private function createRepositorySet(
+        Locker $locker,
+        PlatformRepository $platformRepo,
+        RepositoryInterface $lockedRepository,
+        RootPackage $rootPackage
+    ): RepositorySet {
+        $minimumStability = $locker->getMinimumStability();
+        $stabilityFlags = $locker->getStabilityFlags();
+
+        $requires = [];
+        foreach ($lockedRepository->getPackages() as $package) {
+            $constraint = new Constraint('=', $package->getVersion());
+            $constraint->setPrettyString($package->getPrettyVersion());
+            $requires[$package->getName()] = $constraint;
+        }
+
+        $fixedRootPackage = clone $rootPackage;
+        $fixedRootPackage->setRequires([]);
+        $fixedRootPackage->setDevRequires([]);
+
+        $stabilityFlags[$rootPackage->getName()] = BasePackage::$stabilities[VersionParser::parseStability($rootPackage->getVersion())];
+
+        $repositorySet = new RepositorySet($minimumStability, $stabilityFlags, [], $rootPackage->getReferences(), $requires);
+        $repositorySet->addRepository(new RootPackageRepository($fixedRootPackage));
+        $repositorySet->addRepository($platformRepo);
+
+        return $repositorySet;
     }
 
     /**
