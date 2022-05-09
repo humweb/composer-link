@@ -15,12 +15,12 @@ This plugin can be installed globally or per project
 
 Globally 
 ```
-composer global require sandersander/composer-link
+composer global require humweb/composer-link
 ```
 
 Per project: 
 ```
-composer require --dev sandersander/composer-link
+composer require --dev humweb/composer-link
 ```
 
 ## Usage
