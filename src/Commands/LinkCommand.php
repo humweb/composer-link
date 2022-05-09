@@ -24,7 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LinkCommand extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('link');
         $this->setDescription('Link a package to a local directory');
@@ -68,7 +68,7 @@ class LinkCommand extends Command
         return 0;
     }
 
-    protected function getPackage(PathHelper $helper, OutputInterface $output): ?LinkedPackage
+    protected function getPackage(PathHelper $helper, OutputInterface $output)
     {
         $linkedPackage = $this->plugin->getPackageFactory()->fromPath($helper->getNormalizedPath());
         $repository = $this->plugin->getRepository();

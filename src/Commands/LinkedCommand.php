@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LinkedCommand extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('linked');
         $this->setDescription('List all linked packages');

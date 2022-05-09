@@ -19,7 +19,7 @@ use InvalidArgumentException;
 
 class PathHelper
 {
-    protected string $path;
+    protected $path;
 
     public function __construct(string $path)
     {

@@ -22,9 +22,9 @@ use ComposerLink\LinkedPackage;
 
 class Transformer
 {
-    protected ArrayLoader $composerLoader;
+    protected $composerLoader;
 
-    protected ArrayDumper $composerDumper;
+    protected $composerDumper;
 
     public function __construct()
     {

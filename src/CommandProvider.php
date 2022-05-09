@@ -24,9 +24,9 @@ use ComposerLink\Commands\UnlinkCommand;
 
 class CommandProvider implements ComposerCommandProvider
 {
-    protected IOInterface $io;
+    protected $io;
 
-    protected Plugin $plugin;
+    protected $plugin;
 
     /**
      * @param array<string, mixed> $arguments

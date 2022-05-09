@@ -22,7 +22,7 @@ interface StorageInterface
      *
      * @param array<string, mixed> $data
      */
-    public function write(array $data): void;
+    public function write(array $data);
 
     /**
      * Read data from storage.

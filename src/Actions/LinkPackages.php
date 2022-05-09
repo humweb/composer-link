@@ -25,11 +25,11 @@ use ComposerLink\Repository\Repository;
  */
 class LinkPackages
 {
-    protected RepositoryManager $repositoryManager;
+    protected $repositoryManager;
 
-    protected Repository $repository;
+    protected $repository;
 
-    protected LinkManager $linkManager;
+    protected $linkManager;
 
     public function __construct(
         LinkManager $linkManager,
@@ -41,7 +41,7 @@ class LinkPackages
         $this->repositoryManager = $repositoryManager;
     }
 
-    public function execute(): void
+    public function execute()
     {
         foreach ($this->repository->all() as $package) {
             if (!$this->linkManager->isLinked($package)) {
@@ -56,7 +56,7 @@ class LinkPackages
      * It can happen, when a package is updated that we need to update the state of the linked package.
      * We do this here, before we link the package back in.
      */
-    private function linkAndUpdate(LinkedPackage $package): void
+    private function linkAndUpdate(LinkedPackage $package)
     {
         $oldOriginalPackage = $package->getOriginalPackage();
         if (!is_null($oldOriginalPackage)) {

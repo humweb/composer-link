@@ -24,9 +24,9 @@ use RuntimeException;
 
 class LinkedPackageFactory
 {
-    protected InstallationManager $installationManager;
+    protected $installationManager;
 
-    protected InstalledRepositoryInterface $installedRepository;
+    protected $installedRepository;
 
     public function __construct(
         InstallationManager $installationManager,

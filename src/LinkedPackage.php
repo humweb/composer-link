@@ -20,18 +20,18 @@ use Composer\Package\PackageInterface;
 
 class LinkedPackage
 {
-    protected string $path;
+    protected $path;
 
-    protected CompletePackage $package;
+    protected $package;
 
-    protected ?PackageInterface $originalPackage;
+    protected  $originalPackage;
 
-    protected string $installationPath;
+    protected $installationPath;
 
     public function __construct(
         string $path,
         CompletePackage $package,
-        ?PackageInterface $originalPackage,
+        PackageInterface $originalPackage = null,
         string $installationPath
     ) {
         $this->path = $path;
@@ -55,7 +55,7 @@ class LinkedPackage
         return $this->package;
     }
 
-    public function getOriginalPackage(): ?PackageInterface
+    public function getOriginalPackage()
     {
         return $this->originalPackage;
     }
@@ -65,7 +65,7 @@ class LinkedPackage
         return $this->installationPath;
     }
 
-    public function setOriginalPackage(?PackageInterface $package): void
+    public function setOriginalPackage(PackageInterface $package = null)
     {
         $this->originalPackage = $package;
     }

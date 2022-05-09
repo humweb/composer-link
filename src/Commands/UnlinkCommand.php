@@ -21,7 +21,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UnlinkCommand extends Command
 {
-    protected function configure(): void
+    protected function configure()
     {
         $this->setName('unlink');
         $this->setDescription('Unlink a linked package');

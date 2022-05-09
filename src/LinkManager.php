@@ -25,13 +25,13 @@ use React\Promise\PromiseInterface;
 
 class LinkManager
 {
-    protected Filesystem $filesystem;
+    protected $filesystem;
 
-    protected Loop $loop;
+    protected $loop;
 
-    protected InstallationManager $installationManager;
+    protected $installationManager;
 
-    protected InstalledRepositoryInterface $installedRepository;
+    protected $installedRepository;
 
     public function __construct(
         Filesystem $filesystem,
@@ -57,7 +57,7 @@ class LinkManager
     /**
      * Links the package into the vendor directory.
      */
-    public function linkPackage(LinkedPackage $linkedPackage): void
+    public function linkPackage(LinkedPackage $linkedPackage)
     {
         if (!is_null($linkedPackage->getOriginalPackage())) {
             $this->uninstall($linkedPackage->getOriginalPackage());
@@ -68,7 +68,7 @@ class LinkManager
     /**
      * Unlinks the package from the vendor directory.
      */
-    public function unlinkPackage(LinkedPackage $linkedPackage): void
+    public function unlinkPackage(LinkedPackage $linkedPackage)
     {
         // Update the repository to the current situation
         if (!is_null($linkedPackage->getOriginalPackage())) {
@@ -82,7 +82,7 @@ class LinkManager
         }
     }
 
-    protected function uninstall(PackageInterface $package): void
+    protected function uninstall(PackageInterface $package)
     {
         $installer = $this->installationManager->getInstaller($package->getType());
         try {
@@ -99,7 +99,7 @@ class LinkManager
      * Downloads and installs the given package
      * https://github.com/composer/composer/blob/2.0.0/src/Composer/Util/SyncHelper.php.
      */
-    protected function install(PackageInterface $package): void
+    protected function install(PackageInterface $package)
     {
         $installer = $this->installationManager->getInstaller($package->getType());
 
@@ -118,7 +118,7 @@ class LinkManager
     /**
      * Waits for promise to be finished.
      */
-    protected function wait(?PromiseInterface $promise): void
+    protected function wait(PromiseInterface $promise = null)
     {
         if (!is_null($promise)) {
             $this->loop->wait([$promise]);

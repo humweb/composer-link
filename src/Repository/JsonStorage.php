@@ -19,14 +19,14 @@ use RuntimeException;
 
 class JsonStorage implements StorageInterface
 {
-    protected string $file;
+    protected $file;
 
     public function __construct(string $file)
     {
         $this->file = $file;
     }
 
-    public function write(array $data): void
+    public function write(array $data)
     {
         /** @var string $json */
         $json = json_encode($data);

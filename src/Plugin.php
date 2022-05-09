@@ -30,19 +30,19 @@ use RuntimeException;
 
 class Plugin implements PluginInterface, Capable, EventSubscriberInterface
 {
-    protected Repository $repository = null;
+    protected $repository = null;
 
-    protected ComposerFileSystem $filesystem;
+    protected $filesystem;
 
-    protected LinkManager $linkManager = null;
+    protected $linkManager = null;
 
-    protected LinkedPackageFactory $packageFactory = null;
+    protected $packageFactory = null;
 
-    protected Composer $composer;
+    protected $composer;
 
-    protected LinkPackages $linkPackages;
+    protected $linkPackages;
 
-    private RepositoryFactory $repositoryFactory;
+    private $repositoryFactory;
 
     public function __construct(
         ComposerFileSystem $filesystem = null,
@@ -85,7 +85,7 @@ class Plugin implements PluginInterface, Capable, EventSubscriberInterface
         $this->initializeLinkPackages();
     }
 
-    protected function initializeRepository(): void
+    protected function initializeRepository()
     {
         $storageFile = $this->composer->getConfig()
                 ->get('vendor-dir') . DIRECTORY_SEPARATOR . 'linked-packages.json';
@@ -95,7 +95,7 @@ class Plugin implements PluginInterface, Capable, EventSubscriberInterface
         $this->repository = $this->repositoryFactory->create($storageFile);
     }
 
-    protected function initializeLinkedPackageFactory(): void
+    protected function initializeLinkedPackageFactory()
     {
         $this->packageFactory = new LinkedPackageFactory(
             $this->composer->getInstallationManager(),
@@ -103,7 +103,7 @@ class Plugin implements PluginInterface, Capable, EventSubscriberInterface
         );
     }
 
-    protected function initializeLinkManager(): void
+    protected function initializeLinkManager()
     {
         $this->linkManager = new LinkManager(
             $this->filesystem,
@@ -113,7 +113,7 @@ class Plugin implements PluginInterface, Capable, EventSubscriberInterface
         );
     }
 
-    protected function initializeLinkPackages(): void
+    protected function initializeLinkPackages()
     {
         if (is_null($this->linkPackages)) {
             $this->linkPackages = new LinkPackages(
@@ -142,7 +142,7 @@ class Plugin implements PluginInterface, Capable, EventSubscriberInterface
         return $this->linkManager;
     }
 
-    public function linkLinkedPackages(): void
+    public function linkLinkedPackages()
     {
         if (is_null($this->linkPackages)) {
             throw new RuntimeException('Plugin not activated');
