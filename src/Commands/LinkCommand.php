@@ -33,7 +33,7 @@ class LinkCommand extends Command
             'only-installed',
             null,
             InputOption::VALUE_NEGATABLE,
-            'Link only installed packages',
+            'Link only installed packages'
         );
     }
 
