@@ -29,12 +29,12 @@ class LinkCommand extends Command
         $this->setName('link');
         $this->setDescription('Link a package to a local directory');
         $this->addArgument('path', InputArgument::REQUIRED, 'The path of the package');
-//        $this->addOption(
-//            'only-installed',
-//            null,
-//            InputOption::VALUE_NEGATABLE,
-//            'Link only installed packages'
-//        );
+        $this->addOption(
+            'only-installed',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Link only installed packages'
+        );
     }
 
     /**
