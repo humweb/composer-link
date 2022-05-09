@@ -30,19 +30,19 @@ use RuntimeException;
 
 class Plugin implements PluginInterface, Capable, EventSubscriberInterface
 {
-    protected ?Repository $repository = null;
+    protected Repository $repository = null;
 
     protected ComposerFileSystem $filesystem;
 
-    protected ?LinkManager $linkManager = null;
+    protected LinkManager $linkManager = null;
 
-    protected ?LinkedPackageFactory $packageFactory = null;
+    protected LinkedPackageFactory $packageFactory = null;
 
     protected Composer $composer;
 
-    protected ?LinkPackages $linkPackages;
+    protected LinkPackages $linkPackages;
 
-    private ?RepositoryFactory $repositoryFactory;
+    private RepositoryFactory $repositoryFactory;
 
     public function __construct(
         ComposerFileSystem $filesystem = null,
