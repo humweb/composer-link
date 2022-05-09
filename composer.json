@@ -1,5 +1,5 @@
 {
-    "name": "sandersander/composer-link",
+    "name": "humweb/composer-link",
     "description": "Adds ability to link local packages for development with composer",
     "type": "composer-plugin",
     "license": "MIT",
